@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}Báo cáo - Admin{% endblock %}
+
+{% block content %}
+<h2 class="mb-4"><i class="fas fa-chart-bar"></i> Báo cáo doanh thu</h2>
+
+<div class="mb-3">
+    <a href="{{ url_for('admin.reports', days=7) }}" class="btn btn-sm {% if days == 7 %}btn-primary{% else %}btn-outline-primary{% endif %}">7 ngày</a>
+    <a href="{{ url_for('admin.reports', days=30) }}" class="btn btn-sm {% if days == 30 %}btn-primary{% else %}btn-outline-primary{% endif %}">30 ngày</a>
+    <a href="{{ url_for('admin.reports', days=90) }}" class="btn btn-sm {% if days == 90 %}btn-primary{% else %}btn-outline-primary{% endif %}">90 ngày</a>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h6>Tổng doanh thu</h6>
+                <h3>{{ "{:,.0f}".format(total_revenue) }} đ</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <h6>Tổng đơn hàng</h6>
+                <h3>{{ total_orders }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h6>Đơn hoàn thành</h6>
+                <h3>{{ completed_orders }}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Sách bán chạy</h5>
+            </div>
+            <div class="card-body">
+                {% if best_sellers %}
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Sách</th>
+                                <th>Tác giả</th>
+                                <th>Đã bán</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for book in best_sellers %}
+                            <tr>
+                                <td>{{ book.title }}</td>
+                                <td>{{ book.author_name }}</td>
+                                <td><span class="badge bg-success">{{ book.total_sold }}</span></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted">Chưa có dữ liệu</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">Cảnh báo tồn kho</h5>
+            </div>
+            <div class="card-body">
+                {% if low_stock %}
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Sách</th>
+                                <th>Tồn kho</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for book in low_stock %}
+                            <tr>
+                                <td>{{ book.title }}</td>
+                                <td><span class="badge bg-danger">{{ book.stock }}</span></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-success">Tất cả sách đều còn đủ</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

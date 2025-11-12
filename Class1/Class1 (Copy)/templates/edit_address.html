@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Chỉnh sửa địa chỉ - Nhà Sách Online{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0"><i class="fas fa-edit"></i> Chỉnh sửa địa chỉ</h4>
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('auth.edit_address', address_id=address.id) }}" method="post">
+                    <div class="mb-3">
+                        <label for="label" class="form-label">Nhãn địa chỉ (tùy chọn)</label>
+                        <input type="text" class="form-control" id="label" name="label" 
+                               value="{{ address.label or '' }}"
+                               placeholder="Ví dụ: Nhà riêng, Công ty, Nhà bố mẹ...">
+                        <small class="text-muted">Giúp bạn dễ dàng phân biệt các địa chỉ</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="recipient_name" class="form-label">Tên người nhận <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="recipient_name" name="recipient_name" 
+                               value="{{ address.recipient_name }}" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="phone" class="form-label">Số điện thoại <span class="text-danger">*</span></label>
+                        <input type="tel" class="form-control" id="phone" name="phone" 
+                               value="{{ address.phone }}" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="address" class="form-label">Địa chỉ chi tiết <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="address" name="address" rows="3" required>{{ address.address }}</textarea>
+                    </div>
+                    
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="is_default" name="is_default"
+                               {% if address.is_default %}checked{% endif %}>
+                        <label class="form-check-label" for="is_default">
+                            Đặt làm địa chỉ mặc định
+                        </label>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Cập nhật
+                        </button>
+                        <a href="{{ url_for('auth.profile') }}" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Hủy
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

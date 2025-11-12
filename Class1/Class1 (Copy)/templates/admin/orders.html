@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}Quản lý đơn hàng - Admin{% endblock %}
+
+{% block content %}
+<h2 class="mb-4"><i class="fas fa-box"></i> Quản lý đơn hàng</h2>
+
+<div class="mb-3">
+    <a href="{{ url_for('admin.orders') }}" class="btn btn-sm {% if not current_status %}btn-primary{% else %}btn-outline-primary{% endif %}">
+        Tất cả
+    </a>
+    <a href="{{ url_for('admin.orders', status='Chờ xử lý') }}" 
+       class="btn btn-sm {% if current_status == 'Chờ xử lý' %}btn-warning text-dark{% else %}btn-outline-warning{% endif %}">
+        Chờ xử lý
+    </a>
+    <a href="{{ url_for('admin.orders', status='Đang giao') }}" 
+       class="btn btn-sm {% if current_status == 'Đang giao' %}btn-info{% else %}btn-outline-info{% endif %}">
+        Đang giao
+    </a>
+    <a href="{{ url_for('admin.orders', status='Đã giao') }}" 
+       class="btn btn-sm {% if current_status == 'Đã giao' %}btn-success{% else %}btn-outline-success{% endif %}">
+        Đã giao
+    </a>
+    <a href="{{ url_for('admin.orders', status='Đã hủy') }}" 
+       class="btn btn-sm {% if current_status == 'Đã hủy' %}btn-secondary{% else %}btn-outline-secondary{% endif %}">
+        Hủy
+    </a>
+</div>
+
+{% if orders.items %}
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>Mã ĐH</th>
+                <th>Khách hàng</th>
+                <th>Ngày đặt</th>
+                <th>Tổng tiền</th>
+                <th>Trạng thái</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders.items %}
+            <tr>
+                <td><strong>#{{ order.id }}</strong></td>
+                <td>
+                    <a href="{{ url_for('admin.customer_detail', user_id=order.user_id) }}" 
+                       class="text-decoration-none">
+                        {{ order.customer.name }}
+                    </a>
+                </td>
+                <td>{{ order.order_date.strftime('%d/%m/%Y %H:%M') }}</td>
+                <td>{{ "{:,.0f}".format(order.total_amount) }} đ</td>
+                <td>
+                    {% if order.status == 'Chờ xử lý' %}
+                        <span class="badge bg-warning text-dark">{{ order.status }}</span>
+                    {% elif order.status == 'Đang giao' %}
+                        <span class="badge bg-info">{{ order.status }}</span>
+                    {% elif order.status == 'Đã giao' %}
+                        <span class="badge bg-success">{{ order.status }}</span>
+                    {% elif order.status == 'Giao thất bại' %}
+                        <span class="badge bg-danger">{{ order.status }}</span>
+                    {% elif order.status == 'Đã hủy' %}
+                        <span class="badge bg-secondary">{{ order.status }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ url_for('admin.order_detail', order_id=order.id) }}" 
+                       class="btn btn-sm btn-primary">
+                        <i class="fas fa-eye"></i>
+                    </a>
+                    {% if order.status == 'Đã giao' %}
+                    <form action="{{ url_for('admin.delete_order', order_id=order.id) }}" 
+                          method="post" class="d-inline">
+                        <button type="submit" class="btn btn-sm btn-danger" 
+                                onclick="return confirm('Xóa đơn hàng?')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="alert alert-info">Không có đơn hàng</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Thanh toán - Nhà Sách Online{% endblock %}
+
+{% block content %}
+<h2 class="mb-4"><i class="fas fa-credit-card"></i> Thanh toán</h2>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Thông tin giao hàng</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('main.checkout') }}">
+                    <div class="mb-3">
+                        <label for="shipping_name" class="form-label">Họ tên người nhận</label>
+                        <input type="text" class="form-control" id="shipping_name" name="shipping_name" 
+                               value="{{ user.name }}" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="shipping_phone" class="form-label">Số điện thoại</label>
+                        <input type="tel" class="form-control" id="shipping_phone" name="shipping_phone" 
+                               value="{{ user.phone }}" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="shipping_address" class="form-label">Địa chỉ giao hàng</label>
+                        <textarea class="form-control" id="shipping_address" name="shipping_address" 
+                                  rows="3" required></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="payment_method" class="form-label">Phương thức thanh toán</label>
+                        <select class="form-select" id="payment_method" name="payment_method">
+                            <option value="COD">Thanh toán khi nhận hàng (COD)</option>
+                            <option value="Bank Transfer">Chuyển khoản ngân hàng</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="fas fa-check"></i> Xác nhận đặt hàng
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Đơn hàng của bạn</h5>
+            </div>
+            <div class="card-body">
+                {% for item in cart_items %}
+                <div class="d-flex justify-content-between mb-2">
+                    <span>{{ item.book.title }} × {{ item.quantity }}</span>
+                    <span>{{ "{:,.0f}".format(item.subtotal) }} đ</span>
+                </div>
+                {% endfor %}
+                <hr>
+                <div class="d-flex justify-content-between">
+                    <strong>Tổng cộng:</strong>
+                    <strong class="text-primary">{{ "{:,.0f}".format(total) }} đ</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

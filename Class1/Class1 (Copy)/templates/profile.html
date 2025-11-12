@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Hồ sơ - Nhà Sách Online{% endblock %}
+
+{% block content %}
+<h2 class="mb-4"><i class="fas fa-user"></i> Hồ sơ cá nhân</h2>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-3">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Thông tin cá nhân</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Họ tên:</strong> {{ user.name }}</p>
+                <p><strong>Email:</strong> {{ user.email }}</p>
+                <p><strong>Số điện thoại:</strong> {{ user.phone or 'Chưa cập nhật' }}</p>
+                <p><strong>Ngày tạo:</strong> {{ user.created_at.strftime('%d/%m/%Y') }}</p>
+                
+                <a href="{{ url_for('auth.edit_profile') }}" class="btn btn-primary">
+                    <i class="fas fa-edit"></i> Chỉnh sửa
+                </a>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Sổ địa chỉ</h5>
+                <a href="{{ url_for('auth.add_address') }}" class="btn btn-sm btn-light">
+                    <i class="fas fa-plus"></i> Thêm
+                </a>
+            </div>
+            <div class="card-body">
+                {% if addresses %}
+                    {% for address in addresses %}
+                    <div class="border rounded p-3 mb-3 {% if address.is_default %}border-primary bg-light{% endif %}">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <strong>{{ address.label or 'Địa chỉ' }}</strong>
+                                {% if address.is_default %}
+                                <span class="badge bg-primary ms-2">Mặc định</span>
+                                {% endif %}
+                            </div>
+                            <div class="btn-group btn-group-sm">
+                                {% if not address.is_default %}
+                                <form action="{{ url_for('auth.set_default_address', address_id=address.id) }}" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-outline-primary" title="Đặt mặc định">
+                                        <i class="fas fa-star"></i>
+                                    </button>
+                                </form>
+                                {% endif %}
+                                <a href="{{ url_for('auth.edit_address', address_id=address.id) }}" 
+                                   class="btn btn-outline-secondary" title="Sửa">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <form action="{{ url_for('auth.delete_address', address_id=address.id) }}" 
+                                      method="post" class="d-inline" 
+                                      onsubmit="return confirm('Xóa địa chỉ này?')">
+                                    <button type="submit" class="btn btn-outline-danger" title="Xóa">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        <p class="mb-1"><strong>{{ address.recipient_name }}</strong></p>
+                        <p class="mb-1"><i class="fas fa-phone"></i> {{ address.phone }}</p>
+                        <p class="mb-0"><i class="fas fa-map-marker-alt"></i> {{ address.address }}</p>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="alert alert-info mb-0">
+                        <i class="fas fa-info-circle"></i> Chưa có địa chỉ nào. 
+                        <a href="{{ url_for('auth.add_address') }}">Thêm địa chỉ mới</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">Thống kê</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Tổng đơn hàng:</strong> {{ user.orders.count() }}</p>
+                <p>
+                    <strong>Đơn hàng chờ xử lý:</strong> 
+                    {{ user.orders.filter_by(status='Chờ xử lý').count() }}
+                </p>
+                <p>
+                    <strong>Đơn hàng đã giao:</strong> 
+                    {{ user.orders.filter_by(status='Đã giao').count() }}
+                </p>
+                
+                <a href="{{ url_for('main.my_orders') }}" class="btn btn-info text-white">
+                    <i class="fas fa-box"></i> Xem đơn hàng
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

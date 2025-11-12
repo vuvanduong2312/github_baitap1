@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Thể loại - Admin{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between mb-4">
+    <h2><i class="fas fa-folder"></i> Quản lý thể loại</h2>
+    <a href="{{ url_for('admin.add_category') }}" class="btn btn-success"><i class="fas fa-plus"></i> Thêm</a>
+</div>
+<table class="table">
+    <thead><tr><th>Tên</th><th>Mô tả</th><th></th></tr></thead>
+    <tbody>
+        {% for cat in categories %}
+        <tr>
+            <td>{{ cat.name }}</td>
+            <td>{{ cat.description or 'N/A' }}</td>
+            <td>
+                <a href="{{ url_for('admin.edit_category', category_id=cat.id) }}" class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></a>
+                <form action="{{ url_for('admin.delete_category', category_id=cat.id) }}" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Xóa?')"><i class="fas fa-trash"></i></button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

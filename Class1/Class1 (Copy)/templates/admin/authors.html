@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Tác giả - Admin{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between mb-4">
+    <h2><i class="fas fa-user-edit"></i> Quản lý tác giả</h2>
+    <a href="{{ url_for('admin.add_author') }}" class="btn btn-success"><i class="fas fa-plus"></i> Thêm</a>
+</div>
+<table class="table">
+    <thead><tr><th>Tên</th><th>Tiểu sử</th><th></th></tr></thead>
+    <tbody>
+        {% for author in authors %}
+        <tr>
+            <td>{{ author.name }}</td>
+            <td>{{ author.bio or 'N/A' }}</td>
+            <td>
+                <a href="{{ url_for('admin.edit_author', author_id=author.id) }}" class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></a>
+                <form action="{{ url_for('admin.delete_author', author_id=author.id) }}" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Xóa?')"><i class="fas fa-trash"></i></button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

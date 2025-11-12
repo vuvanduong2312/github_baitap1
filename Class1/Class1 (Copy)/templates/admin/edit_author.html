@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Sửa tác giả{% endblock %}
+{% block content %}
+<h2 class="mb-4">Sửa tác giả</h2>
+<div class="card" style="max-width: 600px;">
+    <div class="card-body">
+        <form method="POST">
+            <div class="mb-3">
+                <label class="form-label">Tên</label>
+                <input type="text" class="form-control" name="name" value="{{ author.name }}" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Tiểu sử</label>
+                <textarea class="form-control" name="bio" rows="3">{{ author.bio or '' }}</textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Lưu</button>
+            <a href="{{ url_for('admin.authors') }}" class="btn btn-secondary">Hủy</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

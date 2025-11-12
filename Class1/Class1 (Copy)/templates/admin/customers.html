@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Khách hàng - Admin{% endblock %}
+
+{% block content %}
+<h2 class="mb-4"><i class="fas fa-users"></i> Quản lý khách hàng</h2>
+
+{% if customers.items %}
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Tên</th>
+                <th>Email</th>
+                <th>SĐT</th>
+                <th>Ngày tạo</th>
+                <th>Trạng thái</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for customer in customers.items %}
+            <tr>
+                <td>{{ customer.id }}</td>
+                <td>{{ customer.name }}</td>
+                <td>{{ customer.email }}</td>
+                <td>{{ customer.phone or 'N/A' }}</td>
+                <td>{{ customer.created_at.strftime('%d/%m/%Y') }}</td>
+                <td>
+                    {% if customer.is_active %}
+                        <span class="badge bg-success">Hoạt động</span>
+                    {% else %}
+                        <span class="badge bg-danger">Đã khóa</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ url_for('admin.customer_detail', user_id=customer.id) }}" 
+                       class="btn btn-sm btn-primary">
+                        <i class="fas fa-eye"></i>
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="alert alert-info">Chưa có khách hàng</div>
+{% endif %}
+{% endblock %}

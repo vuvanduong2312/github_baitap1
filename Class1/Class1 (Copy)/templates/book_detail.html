@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}{{ book.title }} - Nhà Sách Online{% endblock %}
+
+{% block content %}
+<div class="mb-3">
+    <a href="{{ url_for('main.books') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Quay lại
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <img src="{{ book.image_url }}" class="img-fluid rounded" alt="{{ book.title }}">
+    </div>
+    
+    <div class="col-md-8">
+        <h2>{{ book.title }}</h2>
+        <p class="text-muted">
+            <i class="fas fa-user"></i> Tác giả: <strong>{{ book.author.name }}</strong>
+        </p>
+        <p class="text-muted">
+            <i class="fas fa-folder"></i> Thể loại: 
+            <a href="{{ url_for('main.books', category=book.category_id) }}">{{ book.category.name }}</a>
+        </p>
+        
+        <hr>
+        
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <p><strong>Nhà xuất bản:</strong> {{ book.publisher or 'N/A' }}</p>
+                <p><strong>Năm xuất bản:</strong> {{ book.year or 'N/A' }}</p>
+            </div>
+            <div class="col-md-6">
+                <p><strong>Giá:</strong> <span class="text-danger h4">{{ "{:,.0f}".format(book.price) }} đ</span></p>
+                <p>
+                    <strong>Tình trạng:</strong> 
+                    {% if book.stock > 0 %}
+                        <span class="badge bg-success">Còn hàng ({{ book.stock }})</span>
+                    {% else %}
+                        <span class="badge bg-danger">Hết hàng</span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+        
+        {% if book.stock > 0 %}
+        <form action="{{ url_for('main.add_to_cart', book_id=book.id) }}" method="post" class="mb-3">
+            <div class="row align-items-end">
+                <div class="col-md-3">
+                    <label for="quantity" class="form-label">Số lượng:</label>
+                    <input type="number" class="form-control" id="quantity" name="quantity" 
+                           value="1" min="1" max="{{ book.stock }}" required>
+                </div>
+                <div class="col-md-6">
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="fas fa-cart-plus"></i> Thêm vào giỏ hàng
+                    </button>
+                </div>
+            </div>
+        </form>
+        {% else %}
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i> Sản phẩm hiện đang hết hàng
+        </div>
+        {% endif %}
+        
+        <hr>
+        
+        <h5>Mô tả</h5>
+        <p>{{ book.description or 'Chưa có mô tả chi tiết.' }}</p>
+    </div>
+</div>
+
+{% if related_books %}
+<div class="mt-5">
+    <h3 class="mb-4">Sách cùng thể loại</h3>
+    <div class="row">
+        {% for related in related_books %}
+        <div class="col-md-3 mb-4">
+            <div class="card h-100">
+                <img src="{{ related.image_url }}" class="card-img-top" alt="{{ related.title }}" 
+                     style="height: 200px; object-fit: cover;">
+                <div class="card-body">
+                    <h6 class="card-title">{{ related.title }}</h6>
+                    <p class="card-text text-muted small">{{ related.author.name }}</p>
+                    <p class="card-text"><strong>{{ "{:,.0f}".format(related.price) }} đ</strong></p>
+                    <a href="{{ url_for('main.book_detail', book_id=related.id) }}" class="btn btn-sm btn-primary">
+                        Xem chi tiết
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

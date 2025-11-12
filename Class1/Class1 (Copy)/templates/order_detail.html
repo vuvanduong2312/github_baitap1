@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block title %}Chi tiết đơn hàng #{{ order.id }} - Nhà Sách Online{% endblock %}
+
+{% block content %}
+<div class="mb-3">
+    <a href="{% if current_user.is_admin %}{{ url_for('admin.orders') }}{% else %}{{ url_for('main.my_orders') }}{% endif %}" 
+       class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Quay lại
+    </a>
+</div>
+
+<h2 class="mb-4">Chi tiết đơn hàng #{{ order.id }}</h2>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Thông tin đơn hàng</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-2">
+                    <div class="col-sm-4"><strong>Mã đơn hàng:</strong></div>
+                    <div class="col-sm-8">#{{ order.id }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-sm-4"><strong>Ngày đặt:</strong></div>
+                    <div class="col-sm-8">{{ order.order_date.strftime('%d/%m/%Y %H:%M') }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-sm-4"><strong>Trạng thái:</strong></div>
+                    <div class="col-sm-8">
+                        {% if order.status == 'Chờ xử lý' %}
+                            <span class="badge bg-warning text-dark">{{ order.status }}</span>
+                        {% elif order.status == 'Đang giao' %}
+                            <span class="badge bg-info">{{ order.status }}</span>
+                        {% elif order.status == 'Đã giao' %}
+                            <span class="badge bg-success">{{ order.status }}</span>
+                        {% elif order.status == 'Giao thất bại' %}
+                            <span class="badge bg-danger">{{ order.status }}</span>
+                        {% else %}
+                            <span class="badge bg-secondary">{{ order.status }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-sm-4"><strong>Phương thức:</strong></div>
+                    <div class="col-sm-8">{{ order.payment_method }}</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Thông tin giao hàng</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-2">
+                    <div class="col-sm-4"><strong>Người nhận:</strong></div>
+                    <div class="col-sm-8">{{ order.shipping_name }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-sm-4"><strong>Số điện thoại:</strong></div>
+                    <div class="col-sm-8">{{ order.shipping_phone }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-sm-4"><strong>Địa chỉ:</strong></div>
+                    <div class="col-sm-8">{{ order.shipping_address }}</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Chi tiết sản phẩm</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Sách</th>
+                                <th>Đơn giá</th>
+                                <th>Số lượng</th>
+                                <th>Thành tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for detail in order_details %}
+                            <tr>
+                                <td>{{ detail.book.title }}</td>
+                                <td>{{ "{:,.0f}".format(detail.price) }} đ</td>
+                                <td>{{ detail.quantity }}</td>
+                                <td><strong>{{ "{:,.0f}".format(detail.price * detail.quantity) }} đ</strong></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="3" class="text-end">Tổng cộng:</th>
+                                <th><strong class="text-primary">{{ "{:,.0f}".format(order.total_amount) }} đ</strong></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        {% if not current_user.is_admin and order.status == 'Chờ xử lý' %}
+        <div class="card mb-3">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">Hủy đơn hàng</h5>
+            </div>
+            <div class="card-body">
+                <p>Bạn có thể hủy đơn hàng này nếu chưa được xử lý.</p>
+                <form action="{{ url_for('main.cancel_order', order_id=order.id) }}" method="post">
+                    <button type="submit" class="btn btn-danger w-100" 
+                            onclick="return confirm('Bạn có chắc muốn hủy đơn hàng này?')">
+                        <i class="fas fa-times"></i> Hủy đơn hàng
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if current_user.is_admin %}
+        <div class="card mb-3">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Cập nhật trạng thái</h5>
+            </div>
+            <div class="card-body">
+                {% if order.status == 'Đã hủy' %}
+                <div class="alert alert-secondary mb-0">
+                    <i class="fas fa-ban"></i> Không thể cập nhật đơn hàng đã hủy
+                </div>
+                {% else %}
+                <form action="{{ url_for('admin.update_order_status', order_id=order.id) }}" method="post">
+                    <div class="mb-3">
+                        <label for="status" class="form-label">Trạng thái mới:</label>
+                        <select name="status" id="status" class="form-select" required>
+                            <option value="Chờ xử lý" {% if order.status == 'Chờ xử lý' %}selected{% endif %}>Chờ xử lý</option>
+                            <option value="Đang giao" {% if order.status == 'Đang giao' %}selected{% endif %}>Đang giao</option>
+                            <option value="Đã giao" {% if order.status == 'Đã giao' %}selected{% endif %}>Đã giao</option>
+                            <option value="Giao thất bại" {% if order.status == 'Giao thất bại' %}selected{% endif %}>Giao thất bại</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-sync"></i> Cập nhật
+                    </button>
+                </form>
+                {% endif %}
+                {% if order.status == 'Giao thất bại' %}
+                <div class="alert alert-info mt-3 mb-0">
+                    <small><i class="fas fa-info-circle"></i> Hàng đã được hoàn về kho</small>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+        
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">Thông tin khách hàng</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Tên:</strong> 
+                    {% if current_user.is_admin %}
+                    <a href="{{ url_for('admin.customer_detail', user_id=order.user_id) }}" class="text-decoration-none">
+                        {{ order.customer.name }}
+                    </a>
+                    {% else %}
+                    {{ order.customer.name }}
+                    {% endif %}
+                </p>
+                <p><strong>Email:</strong> {{ order.customer.email }}</p>
+                <p><strong>SĐT:</strong> {{ order.customer.phone }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

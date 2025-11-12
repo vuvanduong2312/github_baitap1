@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Thêm thể loại{% endblock %}
+{% block content %}
+<h2 class="mb-4">Thêm thể loại</h2>
+<div class="card" style="max-width: 600px;">
+    <div class="card-body">
+        <form method="POST">
+            <div class="mb-3">
+                <label class="form-label">Tên thể loại</label>
+                <input type="text" class="form-control" name="name" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Mô tả</label>
+                <textarea class="form-control" name="description" rows="3"></textarea>
+            </div>
+            <button type="submit" class="btn btn-success">Thêm</button>
+            <a href="{{ url_for('admin.categories') }}" class="btn btn-secondary">Hủy</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

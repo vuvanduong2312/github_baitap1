@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Đơn hàng của tôi - Nhà Sách Online{% endblock %}
+
+{% block content %}
+<h2 class="mb-4"><i class="fas fa-box"></i> Đơn hàng của tôi</h2>
+
+{% if orders.items %}
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Mã ĐH</th>
+                <th>Ngày đặt</th>
+                <th>Tổng tiền</th>
+                <th>Trạng thái</th>
+                <th>Chi tiết</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders.items %}
+            <tr>
+                <td><strong>#{{ order.id }}</strong></td>
+                <td>{{ order.order_date.strftime('%d/%m/%Y %H:%M') }}</td>
+                <td>{{ "{:,.0f}".format(order.total_amount) }} đ</td>
+                <td>
+                    {% if order.status == 'Chờ xử lý' %}
+                        <span class="badge bg-warning">{{ order.status }}</span>
+                    {% elif order.status == 'Đang giao' %}
+                        <span class="badge bg-info">{{ order.status }}</span>
+                    {% elif order.status == 'Đã giao' %}
+                        <span class="badge bg-success">{{ order.status }}</span>
+                    {% else %}
+                        <span class="badge bg-danger">{{ order.status }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ url_for('main.order_detail', order_id=order.id) }}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-eye"></i> Xem
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if orders.pages > 1 %}
+<nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+        {% if orders.has_prev %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('main.my_orders', page=orders.prev_num) }}">Trước</a>
+        </li>
+        {% endif %}
+        
+        {% for page_num in orders.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+            {% if page_num %}
+                <li class="page-item {% if page_num == orders.page %}active{% endif %}">
+                    <a class="page-link" href="{{ url_for('main.my_orders', page=page_num) }}">{{ page_num }}</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+            {% endif %}
+        {% endfor %}
+        
+        {% if orders.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('main.my_orders', page=orders.next_num) }}">Sau</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% else %}
+<div class="text-center py-5">
+    <i class="fas fa-box-open fa-5x text-muted mb-3"></i>
+    <h3>Chưa có đơn hàng</h3>
+    <p class="text-muted">Bạn chưa có đơn hàng nào</p>
+    <a href="{{ url_for('main.books') }}" class="btn btn-primary">
+        <i class="fas fa-shopping-cart"></i> Mua sắm ngay
+    </a>
+</div>
+{% endif %}
+{% endblock %}

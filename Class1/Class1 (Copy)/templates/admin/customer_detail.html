@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}Chi tiết khách hàng - Admin{% endblock %}
+
+{% block content %}
+<div class="mb-3">
+    <a href="{{ url_for('admin.customers') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Quay lại
+    </a>
+</div>
+
+<h2 class="mb-4">Chi tiết khách hàng</h2>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card mb-3">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Thông tin</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Tên:</strong> {{ customer.name }}</p>
+                <p><strong>Email:</strong> {{ customer.email }}</p>
+                <p><strong>SĐT:</strong> {{ customer.phone or 'N/A' }}</p>
+                <p><strong>Trạng thái:</strong> 
+                    {% if customer.is_active %}
+                        <span class="badge bg-success">Hoạt động</span>
+                    {% else %}
+                        <span class="badge bg-danger">Đã khóa</span>
+                    {% endif %}
+                </p>
+                <form action="{{ url_for('admin.toggle_customer', user_id=customer.id) }}" method="post">
+                    <button type="submit" class="btn btn-warning w-100">
+                        {% if customer.is_active %}
+                            <i class="fas fa-lock"></i> Khóa tài khoản
+                        {% else %}
+                            <i class="fas fa-unlock"></i> Mở khóa
+                        {% endif %}
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Sổ địa chỉ</h5>
+            </div>
+            <div class="card-body">
+                {% if addresses %}
+                    {% for address in addresses %}
+                    <div class="border rounded p-2 mb-2 {% if address.is_default %}border-primary bg-light{% endif %}">
+                        <strong>{{ address.label or 'Địa chỉ' }}</strong>
+                        {% if address.is_default %}
+                        <span class="badge bg-primary">Mặc định</span>
+                        {% endif %}
+                        <p class="mb-0 small mt-1">{{ address.recipient_name }}</p>
+                        <p class="mb-0 small"><i class="fas fa-phone"></i> {{ address.phone }}</p>
+                        <p class="mb-0 small"><i class="fas fa-map-marker-alt"></i> {{ address.address }}</p>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted small mb-0">Chưa có địa chỉ</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Lịch sử đơn hàng</h5>
+            </div>
+            <div class="card-body">
+                {% if orders %}
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Mã ĐH</th>
+                                <th>Ngày</th>
+                                <th>Tổng tiền</th>
+                                <th>Trạng thái</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in orders %}
+                            <tr>
+                                <td>#{{ order.id }}</td>
+                                <td>{{ order.order_date.strftime('%d/%m/%Y') }}</td>
+                                <td>{{ "{:,.0f}".format(order.total_amount) }} đ</td>
+                                <td>
+                                    {% if order.status == 'Chờ xử lý' %}
+                                        <span class="badge bg-warning">{{ order.status }}</span>
+                                    {% elif order.status == 'Đã giao' %}
+                                        <span class="badge bg-success">{{ order.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('admin.order_detail', order_id=order.id) }}" 
+                                       class="btn btn-sm btn-primary">Xem</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted">Chưa có đơn hàng</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
