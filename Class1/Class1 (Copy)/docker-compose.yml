@@ -1,0 +1,31 @@
+
+version: "3.9"
+
+services:
+  web:
+    build: .
+    container_name: bookstore_web
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+    environment:
+      - FLASK_ENV=production
+      - DATABASE_URI=mysql+pymysql://bookstore_user:bookstore_pass@db/bookstore
+    volumes:
+      - .:/app
+
+  db:
+    image: mysql:8.0
+    container_name: bookstore_db
+    restart: always
+    environment:
+      - MYSQL_DATABASE=bookstore
+      - MYSQL_USER=bookstore_user
+      - MYSQL_PASSWORD=bookstore_pass
+      - MYSQL_ROOT_PASSWORD=root123
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:
