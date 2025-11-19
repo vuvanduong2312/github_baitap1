@@ -1,4 +1,3 @@
-
 version: "3.9"
 
 services:
@@ -12,20 +11,24 @@ services:
     environment:
       - FLASK_ENV=production
       - DATABASE_URI=mysql+pymysql://bookstore_user:bookstore_pass@db/bookstore
+      - SECRET_KEY=daylabimatcuaban123456
     volumes:
       - .:/app
+    restart: unless-stopped
 
   db:
     image: mysql:8.0
     container_name: bookstore_db
     restart: always
     environment:
-      - MYSQL_DATABASE=bookstore
-      - MYSQL_USER=bookstore_user
-      - MYSQL_PASSWORD=bookstore_pass
-      - MYSQL_ROOT_PASSWORD=root123
+      MYSQL_DATABASE: bookstore
+      MYSQL_USER: bookstore_user
+      MYSQL_PASSWORD: bookstore_pass
+      MYSQL_ROOT_PASSWORD: root123
     volumes:
       - mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"   # để bạn có thể connect từ host nếu cần
 
 volumes:
   mysql_data:
