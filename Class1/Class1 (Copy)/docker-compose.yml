@@ -10,7 +10,7 @@ services:
       - db
     environment:
       FLASK_ENV: production
-      DATABASE_URI: mysql+pymysql://bookstore_user:bookstore_pass@db:3306/bookstore?charset=utf8mb4
+      DATABASE_URI: mysql+pymysql://bookstore_user:bookstore_pass@db/bookstore?charset=utf8mb4
       SECRET_KEY: daylabimatcuaban123456
     volumes:
       - .:/app
@@ -28,7 +28,7 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
     ports:
-      - "3306:3306"  # cho phép bạn kết nối từ bên ngoài (VD: DBeaver)
+      - "3306:3306"
 
 volumes:
   mysql_data:
