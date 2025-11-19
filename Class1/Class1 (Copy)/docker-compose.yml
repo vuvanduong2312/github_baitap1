@@ -9,9 +9,9 @@ services:
     depends_on:
       - db
     environment:
-      - FLASK_ENV=production
-      - DATABASE_URI=mysql+pymysql://bookstore_user:bookstore_pass@db/bookstore
-      - SECRET_KEY=daylabimatcuaban123456
+      FLASK_ENV: production
+      DATABASE_URI: mysql+pymysql://bookstore_user:bookstore_pass@db/bookstore?charset=utf8mb4
+      SECRET_KEY: daylabimatcuaban123456
     volumes:
       - .:/app
     restart: unless-stopped
@@ -28,7 +28,7 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
     ports:
-      - "3306:3306"   # để bạn có thể connect từ host nếu cần
+      - "3306:3306"  # cho phép bạn kết nối từ bên ngoài (VD: DBeaver)
 
 volumes:
   mysql_data:

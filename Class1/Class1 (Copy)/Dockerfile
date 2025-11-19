@@ -1,26 +1,37 @@
-# Sử dụng image Python chính thức
-FROM python:3.10-slim
+# ---------- Build Stage ----------
+FROM python:3.10-slim AS builder
 
-# Thiết lập thư mục làm việc
 WORKDIR /app
 
-# Thêm mirror Trung Quốc để không bao giờ lỗi mạng nữa
-ARG PIP_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple
-ARG PIP_TRUSTED_HOST=pypi.tuna.tsinghua.edu.cn
-ENV PIP_INDEX_URL=$PIP_INDEX_URL
-ENV PIP_TRUSTED_HOST=$PIP_TRUSTED_HOST
+# Cài dependencies để build package (mysqlclient, cryptography,…)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential gcc libmariadb-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements và cài đặt (có mirror)
 COPY requirements.txt .
-RUN pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple --trusted-host pypi.tuna.tsinghua.edu.cn -r requirements.txt
+RUN pip install --no-cache-dir --user -r requirements.txt
 
-# Copy toàn bộ code vào container
+# ---------- Final Stage ----------
+FROM python:3.10-slim
+
+WORKDIR /app
+
+# Runtime dependencies MySQL
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    default-libmysqlclient-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy Python packages từ builder
+COPY --from=builder /root/.local /root/.local
+ENV PATH=/root/.local/bin:$PATH
+
+# Copy toàn bộ source code
 COPY . .
 
-# Mở port
+# Tạo user không quyền root (bảo mật)
+RUN adduser --disabled-password --gecos '' appuser
+USER appuser
+
 EXPOSE 5000
 
-# Lệnh chạy ứng dụng (thay run.py bằng tên file chính của bạn nếu khác)
-CMD ["python", "run.py"]
-# Nếu bạn dùng app.py + Flask CLI thì dùng dòng dưới thay thế:
-# CMD ["flask", "run", "--host=0.0.0.0", "--port=5000"]
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "run:app"]
